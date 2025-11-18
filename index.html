@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DIY & IoT — KStudio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+          "
+        >
+          <div class="brand">
+            <img src="assets/logo.png" alt="KStudio" class="site-logo" />
+            <div>
+              <h1 class="site-title">KStudio — DIY & IoT Projects</h1>
+              <p class="site-subtitle">
+                Hands-on builds, sensors, and tinkering notes
+              </p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <a
+              class="btn btn-ghost"
+              href="mailto:you@domain.com?subject=Contact%20from%20KStudio"
+              aria-label="Contact me"
+              >Contact</a
+            >
+            <a
+              class="btn btn-primary"
+              href="https://www.buymeacoffee.com/yourhandle"
+              target="_blank"
+              rel="noopener"
+              aria-label="Buy me a coffee"
+              >☕ Buy me a coffee</a
+            >
+            <button
+              id="themeToggle"
+              class="theme-toggle"
+              aria-label="Toggle theme"
+            >
+              🌙
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- Slider -->
+      <section id="highlights" class="highlights">
+        <div class="slider">
+          <button class="slider-btn prev" aria-label="Previous">‹</button>
+          <div class="slides" id="slides"></div>
+          <button class="slider-btn next" aria-label="Next">›</button>
+        </div>
+      </section>
+
+      <!-- Projects list -->
+      <section id="projects" class="projects">
+        <h2>Projects</h2>
+        <div class="project-grid" id="projectGrid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© KStudio — DIY & IoT</div>
+    </footer>
+
+    <script src="main.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Project — KStudio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+          "
+        >
+          <div class="brand">
+            <img src="assets/logo.png" alt="KStudio" class="site-logo" />
+            <a href="/" class="site-title">KStudio</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container project-detail">
+      <aside class="left-nav" id="leftNav">
+        <nav>
+          <!-- moving rounded indicator for active item -->
+          <div class="nav-indicator" aria-hidden="true"></div>
+          <ul>
+            <li><a href="#intro" data-section="intro">Introduction</a></li>
+            <li><a href="#wiring" data-section="wiring">Wiring Diagram</a></li>
+            <li>
+              <a href="#firmware" data-section="firmware">Install firmware</a>
+            </li>
+            <li><a href="#accessory" data-section="accessory">Accessory</a></li>
+            <li><a href="#qa" data-section="qa">Q & A</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <section class="detail-content" id="detailContent">
+        <div class="project-hero" id="projectHero">
+          <div class="hero-content">
+            <h2 id="projectTitle">Loading…</h2>
+            <p id="projectSummary" class="muted">Loading project summary…</p>
+            <div id="projectTags" class="tags" aria-hidden="false"></div>
+          </div>
+          <div class="hero-image">
+            <img
+              id="projectImage"
+              src="assets/placeholder.svg"
+              alt="project image"
+            />
+          </div>
+        </div>
+
+        <div id="projectSections"></div>
+      </section>
+    </main>
+
+    <script type="module" src="project.clean.js"></script>
+  </body>
+</html>
