@@ -31,55 +31,77 @@ function setupThemeToggle() {
 }
 
 async function loadProjects() {
-    // If deployed (not localhost), try the Cloudflare Worker proxy first
-    try {
-        const hostname = window.location.hostname;
-        // runtime override: set `window.KS_SKIP_PROXY = true` in your HTML (or add
-        // `<meta name="ks-skip-proxy" content="1">`) to skip the `/api/projects` proxy.
-        const skipProxyFlag = (typeof window !== 'undefined' && window.KS_SKIP_PROXY === true) ||
-            (typeof document !== 'undefined' && !!document.querySelector('meta[name="ks-skip-proxy"][content="1"]'));
+    const hostname = window.location.hostname;
 
-        // If not running locally AND not on Cloudflare Pages, AND not explicitly skipping proxy, try the Worker proxy
-        // Cloudflare Pages uses hostnames like `*.pages.dev` and typically does not have a Worker proxy mounted.
-        if (hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.endsWith('pages.dev') && !skipProxyFlag) {
-            try {
+    // Allow manual override to skip proxy
+    const skipProxyFlag =
+        window.KS_SKIP_PROXY === true ||
+        !!document.querySelector('meta[name="ks-skip-proxy"][content="1"]');
+
+    // ---------------------------------------------------------------------
+    // 1) Try Cloudflare Worker proxy (ONLY if user has custom Worker deployed)
+    // ---------------------------------------------------------------------
+    if (!skipProxyFlag) {
+        try {
+            // Heuristic: Only call /api/projects if the URL actually exists
+            // (Cloudflare Pages without Worker => this will 404 instantly)
+            const test = await fetch('/api/projects', { method: 'HEAD' });
+            if (test.ok) {
                 const res = await fetch('/api/projects');
                 if (res.ok) {
                     const json = await res.json();
-                    // ensure array shape
+
                     if (Array.isArray(json)) return json;
-                    if (json && typeof json === 'object') return Object.keys(json).map(k => (json[k] && typeof json[k] === 'object') ? { id: k, ...json[k] } : { id: k, value: json[k] });
+
+                    if (json && typeof json === 'object') {
+                        return Object.keys(json).map(k =>
+                            (typeof json[k] === 'object')
+                                ? { id: k, ...json[k] }
+                                : { id: k, value: json[k] }
+                        );
+                    }
                 }
-            } catch (e) {
-                console.warn('Proxy /api/projects failed, falling back:', e);
             }
+        } catch (e) {
+            console.warn('Worker proxy check failed:', e);
         }
-    } catch (e) {
-        // ignore
     }
-    // Try Firebase Realtime REST (if firebase-config.js is filled)
+
+    // ---------------------------------------------------------------------
+    // 2) Try Firebase Realtime Database (REST)
+    // ---------------------------------------------------------------------
     try {
-        const cfg = await import('./src/firebase/firebase-config.js');
-        const cfgDefault = cfg && cfg.default;
-        if (cfgDefault && cfgDefault.projectId && cfgDefault.projectId !== 'YOUR_PROJECT_ID') {
+        const cfg = await import('/src/firebase/firebase-config.js');
+        const cfgDefault = cfg?.default;
+
+        if (cfgDefault?.projectId && cfgDefault.projectId !== 'YOUR_PROJECT_ID') {
             try {
-                const mod = await import('./src/firebase/firebase-realtime-rest.js');
-                // pass authToken from config if present
+                const mod = await import('/src/firebase/firebase-realtime-rest.js');
+
                 const opts = {};
-                if (cfgDefault && cfgDefault.authToken) opts.authToken = cfgDefault.authToken;
+                if (cfgDefault.authToken) opts.authToken = cfgDefault.authToken;
+
                 const arr = await mod.fetchProjectsAsArray(opts);
-                if (arr && arr.length) return arr;
+
+                if (Array.isArray(arr) && arr.length > 0) return arr;
+
+                // Even if empty, still return array
+                if (Array.isArray(arr)) return arr;
             } catch (err) {
-                console.warn('Firebase realtime fetch failed, falling back to local data:', err);
+                console.warn('Firebase realtime fetch failed:', err);
             }
         }
     } catch (err) {
-        // ignore missing config
+        console.warn('Could not load firebase-config.js', err);
     }
 
-    // Fallback to local JSON file
+    // ---------------------------------------------------------------------
+    // 3) Fallback - local JSON
+    // ---------------------------------------------------------------------
     const res = await fetch(projectsUrl);
-    if (!res.ok) throw new Error('Failed to load projects.json');
+    if (!res.ok) {
+        throw new Error('Failed to load projects.json');
+    }
     return res.json();
 }
 

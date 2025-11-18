@@ -13,36 +13,68 @@ import firebaseConfig from './firebase-config.js';
  * @param {Object} [opts.fetchOptions] - Extra options to pass to fetch
  * @returns {Promise<any>} parsed JSON or throws on network/non-OK status
  */
-export async function fetchFromRealtimeRest({ projectId, path = undefined, authToken = null, fetchOptions = {}, cacheBust = true } = {}) {
-    const cfgProjectId = (firebaseConfig && firebaseConfig.projectId) ? firebaseConfig.projectId : null;
-    const cfgPath = (firebaseConfig && firebaseConfig.defaultPath) ? firebaseConfig.defaultPath : 'projects';
-    const cfgDatabaseURL = (firebaseConfig && firebaseConfig.databaseURL) ? firebaseConfig.databaseURL : null;
-    const cfgAuthToken = (firebaseConfig && firebaseConfig.authToken) ? firebaseConfig.authToken : null;
+export async function fetchFromRealtimeRest({
+    projectId,
+    path,
+    authToken = null,
+    fetchOptions = {},
+    cacheBust = true
+} = {}) {
+
+    // Load defaults from firebase-config.js
+    const cfgProjectId = firebaseConfig?.projectId || null;
+    const cfgDatabaseURL = firebaseConfig?.databaseURL || null;
+    const cfgAuthToken = firebaseConfig?.authToken || null;
+
     projectId = projectId || cfgProjectId;
-    path = typeof path === 'undefined' || path === null ? cfgPath : path;
     authToken = authToken || cfgAuthToken || null;
-    if (!projectId && !cfgDatabaseURL) throw new Error('projectId or databaseURL is required (pass in opts or set firebase-config.js)');
-    const safePath = String(path || '').replace(/^\/+/, '');
-    let base;
-    if (cfgDatabaseURL) {
-        base = cfgDatabaseURL.replace(/\/+$/, '');
-    } else {
-        base = `https://${projectId}.firebaseio.com`;
+
+    if (!path || path === "/") path = "";   // root path
+    path = String(path).replace(/^\/+/, "").replace(/\/+$/, "");
+
+    if (!cfgDatabaseURL && !projectId) {
+        throw new Error("projectId or databaseURL is required");
     }
-    let url = `${base}/${encodeURIComponent(safePath)}.json`;
+
+    // Build base URL
+    const base = cfgDatabaseURL
+        ? cfgDatabaseURL.replace(/\/+$/, "")
+        : `https://${projectId}.firebaseio.com`;
+
+    // Fix quan trọng: encode từng segment chứ không encode cả path
+    const encodedPath = path
+        ? path.split("/").map(s => encodeURIComponent(s)).join("/")
+        : "";
+
+    // Build final URL
+    let url = `${base}/${encodedPath}.json`;
+
     const params = [];
     if (authToken) params.push(`auth=${encodeURIComponent(authToken)}`);
     if (cacheBust) params.push(`_=${Date.now()}`);
-    if (params.length) url += (url.indexOf('?') === -1 ? '?' : '&') + params.join('&');
-
-    const res = await fetch(url, Object.assign({ method: 'GET', headers: { 'Accept': 'application/json' } }, fetchOptions));
-    if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        throw new Error(`Realtime REST fetch failed: ${res.status} ${res.statusText} ${txt}`);
+    if (params.length > 0) {
+        url += (url.includes("?") ? "&" : "?") + params.join("&");
     }
-    const data = await res.json();
-    return data;
+
+    // Execute request
+    const res = await fetch(
+        url,
+        Object.assign(
+            { method: "GET", headers: { Accept: "application/json" } },
+            fetchOptions
+        )
+    );
+
+    if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(
+            `Realtime REST fetch failed: ${res.status} ${res.statusText} ${txt}`
+        );
+    }
+
+    return res.json();
 }
+
 
 export async function fetchProjectsAsArray(opts) {
     const raw = await fetchFromRealtimeRest(opts);
