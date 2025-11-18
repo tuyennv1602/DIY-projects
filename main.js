@@ -31,6 +31,32 @@ function setupThemeToggle() {
 }
 
 async function loadProjects() {
+    // If deployed (not localhost), try the Cloudflare Worker proxy first
+    try {
+        const hostname = window.location.hostname;
+        // runtime override: set `window.KS_SKIP_PROXY = true` in your HTML (or add
+        // `<meta name="ks-skip-proxy" content="1">`) to skip the `/api/projects` proxy.
+        const skipProxyFlag = (typeof window !== 'undefined' && window.KS_SKIP_PROXY === true) ||
+            (typeof document !== 'undefined' && !!document.querySelector('meta[name="ks-skip-proxy"][content="1"]'));
+
+        // If not running locally AND not on Cloudflare Pages, AND not explicitly skipping proxy, try the Worker proxy
+        // Cloudflare Pages uses hostnames like `*.pages.dev` and typically does not have a Worker proxy mounted.
+        if (hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.endsWith('pages.dev') && !skipProxyFlag) {
+            try {
+                const res = await fetch('/api/projects');
+                if (res.ok) {
+                    const json = await res.json();
+                    // ensure array shape
+                    if (Array.isArray(json)) return json;
+                    if (json && typeof json === 'object') return Object.keys(json).map(k => (json[k] && typeof json[k] === 'object') ? { id: k, ...json[k] } : { id: k, value: json[k] });
+                }
+            } catch (e) {
+                console.warn('Proxy /api/projects failed, falling back:', e);
+            }
+        }
+    } catch (e) {
+        // ignore
+    }
     // Try Firebase Realtime REST (if firebase-config.js is filled)
     try {
         const cfg = await import('./src/firebase/firebase-config.js');
