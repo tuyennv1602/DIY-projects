@@ -66,15 +66,7 @@ body {
 .site-subtitle {
     margin: 0;
     color: var(--muted);
-
-    font-size: 13px .left-nav a:focus {
-        outline: none;
-        color: #fff;
-        z-index: 5;
-        box-shadow: none;
-        /* remove visible border/ring */
-        border-radius: 999px;
-    }
+    font-size: 13px;
 }
 
 /* Theme-aware panels */
@@ -327,19 +319,25 @@ html {
     /* keep links above the moving indicator */
 }
 
-/* Active / hover: show contrasting text (indicator provides background) */
-.left-nav a.active,
-.left-nav a:hover {
+/* Active / hover / focus: theme-aware text colors */
+.left-nav a.active {
+    /* when active we keep white text because the indicator behind is bright */
     color: #fff;
     z-index: 4;
 }
 
-/* Focused (keyboard) state: visible ring and readable text */
+.left-nav a:hover {
+    /* Hover should use theme text color: black in light, white in dark */
+    color: var(--text);
+    z-index: 4;
+}
+
+/* Focused (keyboard) state: no visible native ring, use theme-aware text color */
 .left-nav a:focus {
     outline: none;
-    color: #fff;
+    color: var(--text);
     z-index: 5;
-    box-shadow: 0 0 0 4px rgba(11, 118, 239, 0.12);
+    box-shadow: none;
     border-radius: 999px;
 }
 
