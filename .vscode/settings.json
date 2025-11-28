@@ -1,0 +1,13 @@
+{
+  "dart.openDevTools": "never",
+  "dart.flutterSdkPaths": [
+    "/Users/admin/fvm/versions"
+  ],
+  "dart.flutterSdkPath": ".fvm/versions/3.35.7",
+  "search.exclude": {
+    "**/.fvm": true
+  },
+  "files.watcherExclude": {
+    "**/.fvm": true
+  }
+}

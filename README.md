@@ -1,20 +1,16 @@
-KStudio — Personal DIY & IoT blog (static scaffold)
+# kstudio
 
-Quick start
+A new Flutter project.
 
-1) Preview locally (recommended to use an HTTP server to allow `fetch` to load JSON):
+## Getting Started
 
-```bash
-# from project root
-python3 -m http.server 8000
-# open http://localhost:8000 in your browser
-```
+This project is a starting point for a Flutter application.
 
-2) Edit content:
-- `data/projects.json` — list your projects; set `highlight: true` to include in the homepage slider.
-- `assets/` — put project images here and reference them in `projects.json`.
+A few resources to get you started if this is your first Flutter project:
 
-3) Customize styles and behavior in `styles.css` and `main.js`.
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-Notes
-- This is a minimal static scaffold. If you want a build system (e.g., Eleventy, Hugo, Next.js), tell me your preferred stack and I'll scaffold it.
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
