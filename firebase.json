@@ -1,0 +1,14 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "kstudio-83ca5",
+          "configurations": {
+            "web": "1:284619764354:web:f80a1434ad7e351cdfba9b"
+          }
+        }
+      }
+    }
+  }
+}
