@@ -127,7 +127,7 @@ flutter pub get
 flutter run -d chrome
 
 # Build for production
-flutter build web --release
+flutter build web && rm -rf release/web && mkdir -p release/web && cp -R build/web/* release/web/
 
 # Clean build
 flutter clean && flutter pub get
